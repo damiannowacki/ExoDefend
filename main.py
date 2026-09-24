@@ -43,7 +43,7 @@ class Game:
         
         self.player = Player()
         self.enemy = Enemy()
-        self.highscore = self.load_highscore()
+        self.highscore = self.accounts.get_highscore(self.current_user)
         self.waves = waves
 
         self.enemies = []
@@ -98,8 +98,9 @@ class Game:
                         self.score_pool_cooldown = 30
                         self.score_pool.pop(0)
                 if not self.player.alive:
+                    self.accounts.save_highscore(self.current_user, self.score)
+                    self.highscore = self.accounts.get_highscore(self.current_user)
                     playing = False
-                    self.save_score()
 
 
             # draw
@@ -109,6 +110,9 @@ class Game:
                 self.draw_enemies()
                 self.player.draw(self.screen)
                 self.draw_text(f"WAVE_{self.current_wave + 1}", 48, x = 20, y = 20)
+
+                self.draw_text(f"Player: {self.current_user}", 10, x=10, y=100)
+                self.draw_text(f"High: {self.highscore}", 10, x=10, y=150)
 
                 for bullet in self.player_bullet_pool:
                     bullet.draw(self.screen)
@@ -313,28 +317,6 @@ class Game:
             y = 25
             self.screen.blit(self.heart, (x,y))
 
-    def load_highscore(self):
-        try:
-            with open("scores.txt", "r") as file:
-                scores = []
-                for f in file:
-                    try:
-                        score = int(f.strip())
-                        scores.append(score)
-                    except ValueError:
-                        pass
-                if len(scores) > 0:
-                    return max(scores)
-        except FileNotFoundError:
-            pass
-        return 0
-
-    def save_score(self):
-        with open("scores.txt", "a") as file:
-            file.write(f"{self.score}\n")
-        if self.score > self.highscore:
-            self.highscore = self.score
-
 
     def accuracy(self):
         if self.bullets_shot_amount == 0:
@@ -382,11 +364,11 @@ class Game:
                     return None
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_l:
-                        username = self.startscreen("login")
+                        username = self.account_screen("login")
                         if username is not None:
                             return username
                     elif event.key == pygame.K_s:
-                        username = self.startscreen("signup")
+                        username = self.account_screen("signup")
                         if username is not None:
                             return username
                     elif event.key == pygame.K_ESCAPE:
@@ -406,6 +388,69 @@ class Game:
 
             pygame.display.update()
 
+    def account_screen(self, mode):
+        username = ""
+        password = "" 
+        selected = "username"
+        message = ""
+        while True:
+            self.clock.tick(self.fps)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return None
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return None
+                    elif event.key == pygame.K_TAB:
+                        if selected == "username":
+                            selected = "password"
+                        else:
+                            selected = "username"
+                    elif event.key == pygame.K_RETURN:
+                        if selected == "username":
+                            selected = "password"
+                        else:
+                            if mode == "login":
+                                if self.accounts.login(username, password):
+                                    return username
+                                else:
+                                    message = "Invalid Login"
+                            elif mode == "signup":
+                                success, message = self.accounts.sign_up(username, password)
+                                if success:
+                                    return username
+                    elif event.key == pygame.K_BACKSPACE:
+                        if selected == "username":
+                            username = username[:-1]
+                        else:
+                            password = password[:-1]
+                    else:
+                        if event.unicode.isprintable():
+                            if selected == "username":
+                                username += event.unicode
+                            else:
+                                password += event.unicode
+            self.screen.fill("black")
+            if mode == "login":
+                title = "LOGIN"
+            else:
+                title = "SIGN UP"
+            self.draw_text(title, 26, y=-170, centered=True)
+            self.draw_text("Username:", 14, y=-90, centered=True)
+            self.draw_text(username, 14, y=-55, centered = True)
+            self.draw_text("Password:", 14, y=0, centered=True)
+            hiddem_password = "*" * len(password)
+            self.draw_text(hiddem_password, 14, y=35, centered=True)
+            if selected == username:
+                selected_text = "Typing Username"
+            else:
+                selected_text = "Typing Password"
+            self.draw_text(selected_text, 10, y=100, centered = True)
+            self.draw_text("TAB - Switch", 8, y=140, centered = True)
+            self.draw_text("ENTER - Continue", 8, y = 165, centered = True)
+            if message != "":
+                self.draw_text(message, 10, y = 210, centered=True)
+            pygame.display.update()
 
 game = Game()
 game.start()
