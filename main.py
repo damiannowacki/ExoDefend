@@ -357,34 +357,33 @@ class Game:
         
 
     def startscreen(self):
+        self.draw_background()
+        self.draw_text("EXO", 50, 150, 32)
+        self.draw_text("DEFEND", 50, 80, 100)
+
+        log_in_button = pygame.image.load("images/buttons/Buttons/Log_in_button.png")
+        log_in_button = pygame.transform.scale(log_in_button, (310,100))
+        self.screen.blit(log_in_button, (80,400))
+
+        sign_up_button = pygame.image.load("images/buttons/Buttons/Sign_up_button.png")
+        sign_up_button = pygame.transform.scale(sign_up_button, (310,100))
+        self.screen.blit(sign_up_button, (80,520))
+          
         while True:
             self.clock.tick(self.fps)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return None
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_l:
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if self.is_clicked(80,400,300,100): #login
                         username = self.account_screen("login")
                         if username is not None:
                             return username
-                    elif event.key == pygame.K_s:
+                    elif self.is_clicked(80,520,310,100): #signup
                         username = self.account_screen("signup")
                         if username is not None:
                             return username
-                    elif event.key == pygame.K_ESCAPE:
-                        return None
                     
-            self.draw_background()
-            self.draw_text("SPACE", 50, 100, 32)
-            self.draw_text("INVADERS", 50, 30, 100)
-
-            log_in_button = pygame.image.load("images/buttons/Buttons/Log_in_button.png")
-            log_in_button = pygame.transform.scale(log_in_button, (300,100))
-            self.screen.blit(log_in_button, (80,400))
-
-            sign_up_button = pygame.image.load("images/buttons/Buttons/Sign_up_button.png")
-            sign_up_button = pygame.transform.scale(sign_up_button, (310,100))
-            self.screen.blit(sign_up_button, (80,520))
 
             pygame.display.update()
 
@@ -452,10 +451,15 @@ class Game:
                 self.draw_text(message, 10, y = 210, centered=True)
             pygame.display.update()
 
+    def is_clicked(self, button_x, button_y, button_width, button_height):
+        button_layout = pygame.Rect(button_x, button_y, button_width, button_height)
+        if button_layout.collidepoint(pygame.mouse.get_pos()):
+            return True
+        return False
+
 game = Game()
 game.start()
 
-#look at zip file
 #fix enemy shooting bullets
 #DO ALL MOVEMENT TYPES
 #healthbar for enemies
