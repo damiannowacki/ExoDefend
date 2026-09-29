@@ -13,4 +13,8 @@ This is a project I briefly covered as part of my software academy python course
 ## Installation
 Pygame is needed to run this game using "pip install pygame"
 
-I plan to update this game a lot more in the near future, so it is not fully completed yet.
+## Future Updates
+ExoDefend is in active development. Planned future updates include:
+-More movement types
+-Healthbars for enemies
+-Usability of more UI
