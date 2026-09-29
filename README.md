@@ -3,7 +3,7 @@
 A python 2D "space invaders" arcade-style inspired game written from scratch using pygame, with a backend authentication system and more.
 All made from scratch apart from the UI.
 
-This is a project I briefly covered as part of my software academy python course, but I have gone much further than the original course and have created a lot more UI and a whole Login/Signup system.
+This is a project I briefly covered as part of my software academy python course, but I have gone much further than the original course and customised it a lot more, from UI to a whole Login/Signup system.
 
 ## Features:
 -Arcade Gameplay: 2D space shooter mechanics created using pygame
