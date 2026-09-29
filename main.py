@@ -30,6 +30,10 @@ class Game:
         self.screen = pygame.display.set_mode((self.width, self.height), vsync = 1)
         self.clock = pygame.time.Clock()
 
+        pygame.mixer.music.load("audio/music.mp3")
+        pygame.mixer.music.play(-1)
+        self.hit_sound = pygame.mixer.Sound("audio/hit.mp3")
+
         self.accounts = Account_Manager()
         self.current_user = self.startscreen()
 
@@ -76,6 +80,8 @@ class Game:
     def run(self):
         running = True
         playing = True
+
+        self.spawn_timer_offset = pygame.time.get_ticks()
 
         while running:
             # clock
@@ -182,6 +188,7 @@ class Game:
                             self.score_pool.append((f"{enemy.value}", enemy.position.centerx, enemy.position.centery))
                             enemy.scored = True
                             self.enemies_killed_count += 1
+                            self.hit_sound.play()
 
 
     def draw_background(self):
@@ -278,11 +285,6 @@ class Game:
             number_of_bullets = new_wave.number_of_bullets
             self.bullet_creation(number_of_bullets)
             print(number_of_bullets)
-
-
-        """if next_wave and wave_10 in waves:
-            self.level = 10
-            self.playing = False"""
 
     def bullet_creation(self, x):
         self.enemy_bullet_pool = []
@@ -460,8 +462,10 @@ class Game:
 game = Game()
 game.start()
 
+#To add later:
+#Add more movement types
+#Differenciate the backgrounds
 #fix enemy shooting bullets
-#DO ALL MOVEMENT TYPES
-#healthbar for enemies
-#add sound effects, for shooting, losing a life, quiet background music
+#Add a healthbar for enemies
+#more sound effects
 #maybe a bullet count in bottom corner, and says how much you used out of total amount of bullets, with a reload animation when reloading
