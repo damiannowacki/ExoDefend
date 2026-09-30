@@ -117,8 +117,9 @@ class Game:
                 self.player.draw(self.screen)
                 self.draw_text(f"WAVE_{self.current_wave + 1}", 48, x = 20, y = 20)
 
-                self.draw_text(f"Player: {self.current_user}", 10, x=10, y=100)
-                self.draw_text(f"High: {self.highscore}", 10, x=10, y=150)
+                #self.draw_text(f"Player: {self.current_user}", 14, x=10, y=90) ###I've decided that these two block too much of the screen and cause a worse gaming experience
+                #self.draw_text(f"High: {self.highscore}", 14, x=10, y=120)
+                self.draw_text(f"Score: {self.score}", 14, x=10, y=90) ###note: temporarily changed "score" to be displayed where "player" used to be displayed
 
                 for bullet in self.player_bullet_pool:
                     bullet.draw(self.screen)
@@ -463,6 +464,7 @@ game = Game()
 game.start()
 
 #To add later:
+#Play around to where to put "score: " text, possibly above heart icons
 #Add more movement types
 #Differenciate the backgrounds
 #fix enemy shooting bullets
