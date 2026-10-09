@@ -24,6 +24,8 @@ class Game:
         self.fps = 60
 
         self.height = 800
+        self.game_height_bottom = 720
+        self.game_height_top = 80
 
         self.offset = 0
 
@@ -67,12 +69,15 @@ class Game:
         self.bullets_landed = 0
         self.enemies_killed_count = 0
 
+        self.game_screen = self.screen.subsurface((0, self.game_height_top, self.width, self.game_height_bottom))
+        self.game_screen_stats = self.screen.subsurface(0, 0, self.width, self.game_height_top)
+
         for i in range(1000):
             bullet = Bullet()
             bullet.start(200,200,"player")
             self.player_bullet_pool.append(bullet)
 
-        self.player.start(self.width // 2, self.height - 50)
+        self.player.start(self.width // 2, self.game_height_bottom - 50)
         initial_bullets = self.waves[self.current_wave].number_of_bullets
         self.bullet_creation(initial_bullets)
 
@@ -111,21 +116,20 @@ class Game:
 
             # draw
             self.draw_background()
+            pygame.draw.rect(self.game_screen_stats, "black",(0, 0, self.width, self.game_height_top)) 
 
             if playing:
                 self.draw_enemies()
-                self.player.draw(self.screen)
-                self.draw_text(f"WAVE_{self.current_wave + 1}", 48, x = 20, y = 20)
+                self.player.draw(self.game_screen)
+                self.draw_text(f"WAVE_{self.current_wave + 1}", 48, x = 15, y = 13)
 
-                #self.draw_text(f"Player: {self.current_user}", 14, x=10, y=90) ###I've decided that these two block too much of the screen and cause a worse gaming experience
-                #self.draw_text(f"High: {self.highscore}", 14, x=10, y=120)
-                self.draw_text(f"Score: {self.score}", 14, x=10, y=90) ###note: temporarily changed "score" to be displayed where "player" used to be displayed
+                self.draw_text(f"Score: {self.score}", 18, self.width - 144, y=12)
 
                 for bullet in self.player_bullet_pool:
-                    bullet.draw(self.screen)
+                    bullet.draw(self.game_screen)
                 
                 for bullet in self.enemy_bullet_pool:
-                    bullet.draw(self.screen)
+                    bullet.draw(self.game_screen)
 
                 for score in self.score_pool:
                     self.draw_text(score[0], 10, x = score[1], y = score[2])
@@ -135,10 +139,8 @@ class Game:
                 self.draw_text(f"HIGH SCORE: {self.highscore}", 20, 80, 80)
                 self.stats()
 
-            
             self.draw_hearts()
                     
-
             # render
             pygame.display.update()
         
@@ -194,7 +196,7 @@ class Game:
 
     def draw_background(self):
         space = pygame.image.load("images/space/Big Space Background 2.png")
-        space = pygame.transform.scale(space, (self.width, self.height))
+        space = pygame.transform.scale(space, (self.width, self.game_height_bottom))
 
         self.screen.blit(space, (0, self.offset - space.get_height()))
         self.screen.blit(space, (0, self.offset))
@@ -207,7 +209,7 @@ class Game:
     
     def draw_enemies(self):
         for enemy in self.enemies:
-            enemy.draw(self.screen)
+            enemy.draw(self.game_screen)
 
     def update_enemies(self):
         self.update_wave()
@@ -216,7 +218,7 @@ class Game:
             enemy.update_movement(self.width, self.player)
             enemy.cooldown()
             
-            if enemy.position.top > self.height and enemy.alive == True:
+            if enemy.position.top > self.game_height_bottom and enemy.alive == True:
                 enemy.alive = False
                 self.player.damage(1)
 
@@ -238,7 +240,7 @@ class Game:
 
                 bullet.move()
 
-                if bullet.position.top > self.height:
+                if bullet.position.top > self.game_height_top:
                     bullet.active = False
                 
                 for enemy in self.enemies:
@@ -285,7 +287,6 @@ class Game:
             new_wave = self.waves[self.current_wave]
             number_of_bullets = new_wave.number_of_bullets
             self.bullet_creation(number_of_bullets)
-            print(number_of_bullets)
 
     def bullet_creation(self, x):
         self.enemy_bullet_pool = []
@@ -317,8 +318,8 @@ class Game:
     def draw_hearts(self):
         for i in range(self.player.lives):
             x = self.width - 140 + i * 40
-            y = 25
-            self.screen.blit(self.heart, (x,y))
+            y = 30
+            self.game_screen_stats.blit(self.heart, (x,y))
 
 
     def accuracy(self):
@@ -464,9 +465,8 @@ game = Game()
 game.start()
 
 #To add later:
-#Play around to where to put "score: " text, possibly above heart icons
+#improve the ui; add a more consistent colour themeing, including in sign up stage and on top bar, also make score look nicer on top bar
 #Add more movement types
-#Differenciate the backgrounds
 #fix enemy shooting bullets
 #Add a healthbar for enemies
 #more sound effects
